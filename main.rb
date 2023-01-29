@@ -1,16 +1,20 @@
 require 'selenium-webdriver'
 require 'json'
 require 'telegram/bot'
-require 'pp'
+
 file = File.read("./secret.json")
 data = JSON.parse(file)
 
 token = data['token']
 
+
 #disable gui
 options = Selenium::WebDriver::Firefox::Options.new
 options.add_argument '--headless'
 driver = Selenium::WebDriver.for :firefox, options: options
+
+#for debug
+#driver = Selenium::WebDriver.for :firefox
 
 #open url and take login
 driver.get 'https://school.mosreg.ru/userfeed'
@@ -33,19 +37,11 @@ else
   p '-- normal day, good luck'
 end
 
-sleep(1)
-
-#write result to file
-
 p 'Bot started)'
 
 Telegram::Bot::Client.run(token) do |bot|
   bot.listen do |message|
     case message.text
-    when '/start'
-      bot.api.send_message(chat_id: message.chat.id, text: "Hello, #{message.from.first_name}")
-    when '/stop'
-      bot.api.send_message(chat_id: message.chat.id, text: "Bye, #{message.from.first_name}")
     when '/work'
       classes = driver.find_elements(:class, "_201cJ")
       work = driver.find_elements(:class, "_2j_JP")
@@ -61,9 +57,7 @@ Telegram::Bot::Client.run(token) do |bot|
         f.write(JSON.pretty_generate(a))
       end
 
-
       ret=''
-      "Дата: #{a['date']}\n"
       bot.api.send_message(
         chat_id: message.chat.id,
         text: "_Дата: #{a['date']}_",
@@ -74,7 +68,28 @@ Telegram::Bot::Client.run(token) do |bot|
         ret+="#{key}:\n#{val}\n\n"
       end
       bot.api.send_message(chat_id: message.chat.id, text: "#{ret}")
+    when '/marks'
+      b = {}
+      marks = driver.find_elements(:class, "_38lGE")
+      classmark = driver.find_elements(:class, "_36lYy")
 
+      classmark.zip(marks).each do |el|
+        b[el[0].text]=el[1].text
+      end
+      b.delete ''
+
+      ret=''
+      ret.delete ''
+      b.each do |key,val|
+        ret+="#{val} (по #{key})\n"
+      end
+
+      
+      bot.api.send_message(chat_id: message.chat.id, text: "#{ret}")
+    when '/help'
+      bot.api.send_message(chat_id: message.chat.id, text: "Lick meine Schwanzbälle")
+    else
+      bot.api.send_message(chat_id: message.chat.id, text: "I don't understand you :(")
     end
   end
 end
