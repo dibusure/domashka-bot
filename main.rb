@@ -1,5 +1,8 @@
 require 'selenium-webdriver'
 require 'json'
+require 'telegram/bot'
+
+
 
 #disable gui
 options = Selenium::WebDriver::Firefox::Options.new
@@ -8,14 +11,13 @@ driver = Selenium::WebDriver.for :firefox, options: options
 
 #open url and take login
 driver.get 'https://school.mosreg.ru/userfeed'
-file = File.read("./login.json")
+file = File.read("./cookies.json")
 data = JSON.parse(file)
 
-#login
-driver.find_element(:class, "mosreg-login-form__input").send_keys(data['login'])
-driver.find_element(:name, "password").send_keys(data['password'])
-driver.find_element(:class, "mosreg-login-form__submit").click
-sleep(2)
+driver.manage.add_cookie(name: "SchoolMosregAuth_a", value: data['SchoolMosregAuth_a'])
+driver.manage.add_cookie(name: "SchoolMosregAuth_l", value: data['SchoolMosregAuth_l']) 
+driver.navigate.refresh
+
 driver.find_element(:class, "BJvVR").click
 p "-- ", driver.find_element(:class, "_3tdXB").text
 
