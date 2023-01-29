@@ -5,6 +5,7 @@ require 'telegram/bot'
 file = File.read("./secret.json")
 data = JSON.parse(file)
 
+
 token = data['token']
 
 
@@ -34,7 +35,7 @@ if s["суббота"]
 elsif s["воскресенье"] 
   driver.find_element(:class, "BJvVR").click
 else
-  p '-- normal day, good luck'
+  p 'not a weekend'
 end
 
 p 'Bot started)'
@@ -88,6 +89,8 @@ Telegram::Bot::Client.run(token) do |bot|
       bot.api.send_message(chat_id: message.chat.id, text: "#{ret}")
     when '/help'
       bot.api.send_message(chat_id: message.chat.id, text: "Lick meine Schwanzbälle")
+    when '/start'
+      bot.api.send_message(chat_id: message.chat.id, text: "Смотри наверх")
     else
       bot.api.send_message(chat_id: message.chat.id, text: "I don't understand you :(")
     end
