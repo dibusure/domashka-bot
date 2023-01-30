@@ -23,20 +23,6 @@ driver.manage.add_cookie(name: "SchoolMosregAuth_a", value: data['SchoolMosregAu
 driver.manage.add_cookie(name: "SchoolMosregAuth_l", value: data['SchoolMosregAuth_l']) 
 driver.navigate.refresh
 
-driver.find_element(:class, "BJvVR").click
-p '-- ', driver.find_element(:class, "_3tdXB").text
-
-s = driver.find_element(:class, "_3tdXB").text
-
-#check weekend
-if s["суббота"]
-  driver.find_element(:class, "BJvVR").click
-  driver.find_element(:class, "BJvVR").click
-elsif s["воскресенье"] 
-  driver.find_element(:class, "BJvVR").click
-else
-  p 'not a weekend'
-end
 
 p 'Bot started)'
 
@@ -44,6 +30,24 @@ Telegram::Bot::Client.run(token) do |bot|
   bot.listen do |message|
     case message.text
     when '/work'
+      driver.navigate.refresh
+
+      driver.find_element(:class, "BJvVR").click
+      p '-- ', driver.find_element(:class, "_3tdXB").text
+
+      s = driver.find_element(:class, "_3tdXB").text
+
+      #check weekend
+      if s["суббота"]
+        driver.find_element(:class, "BJvVR").click
+        driver.find_element(:class, "BJvVR").click
+      elsif s["воскресенье"] 
+        driver.find_element(:class, "BJvVR").click
+      else
+        p 'not a weekend'
+      end
+
+
       classes = driver.find_elements(:class, "_201cJ")
       work = driver.find_elements(:class, "_2j_JP")
       date = driver.find_element(:class, "_3tdXB")
@@ -70,6 +74,7 @@ Telegram::Bot::Client.run(token) do |bot|
       end
       bot.api.send_message(chat_id: message.chat.id, text: "#{ret}")
     when '/marks'
+      driver.navigate.refresh
       b = {}
       marks = driver.find_elements(:class, "_38lGE")
       classmark = driver.find_elements(:class, "_36lYy")
